@@ -114,7 +114,6 @@ jobs:
       - checkout
       - install-preqs
       - build-libyang
-      - run: yanglint -VVV --strict yang/pdns-server.yang
       - run: yanglint -VVV -f tree yang/pdns-server.yang
 
 workflows:
