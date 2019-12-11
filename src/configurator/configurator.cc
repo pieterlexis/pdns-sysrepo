@@ -190,12 +190,14 @@ PdnsServerConfig::PdnsServerConfig(const libyang::S_Data_Node &node, const sysre
     // XXX This is a new and better way of grabbing the config
     std::cout<<"Attempting to get addresses for allow-axfr"<<std::endl;
     for (auto const n : node->find_path("/pdns-server:pdns-server/pdns-server:allow-axfr")->data()) {
+      std::cout<<"Found a node in the path="<<n->path()<<" name="<<n->schema()->name()<<std::endl;
       if (n->schema()->nodetype() == LYS_LEAFLIST && session != nullptr) {
         axfrAcl a;
         auto leaf = make_shared<libyang::Data_Node_Leaf_List>(n);
         // spdlog::trace("ACL node path={} name={} value={}", leaf->path(), leaf->schema()->name(), leaf->value_str());
         std::cout<<fmt::format("ACL node path={} name={} value={}", leaf->path(), leaf->schema()->name(), leaf->value_str())<<std::endl;
         a.name = leaf->value_str();
+        std::cout<<"Calling get_subtree: "<<fmt::format("/pdns-server:axfr-access-control-list[name='{}']", leaf->value_str())<<std::endl;
         auto aclNode = session->get_subtree(fmt::format("/pdns-server:axfr-access-control-list[name='{}']", leaf->value_str()).c_str());
         if (aclNode) {
           for (auto const networkNode : aclNode->find_path("/pdns-server:axfr-access-control-list/pdns-server:network/pdns-server:ip-prefix")->data()) {

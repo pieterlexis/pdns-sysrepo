@@ -71,7 +71,7 @@ public:
     sysrepo::Session(conn, datastore) {};
   ~TestSession(){} ;
 
-  libyang::S_Data_Node get_subtree(const char* path, uint32_t timeout_ms = 0) {
+  libyang::S_Data_Node get_subtree(const char *path, uint32_t timeout_ms = 0) {
     string thePath(path);
     std::cout<<"the path is: "<<thePath<<std::endl;
     if (thePath == "/pdns-server:axfr-access-control-list[name='testACL']") {
@@ -129,10 +129,9 @@ TEST(config_test, master) {
 
 TEST(config_test, axfr_allow_ips) {
   auto conn = make_shared<sysrepo::Connection>();
-  auto sess = make_shared<sysrepo::Session>(conn);
-  auto session = std::static_pointer_cast<TestSession>(sess);
-  auto node = getMasterConfig();
-  auto configurator = pdns_conf::PdnsServerConfig(node, session);
+  auto sess = make_shared<TestSession>(conn);
+  auto node = getAllowAxfrConfig();
+  auto configurator = pdns_conf::PdnsServerConfig(node, sess);
   auto config = configurator.getConfig();
   ASSERT_THAT(config, HasSubstr("allow-axfr-ips += 192.0.2.0/25\n"));
 }
