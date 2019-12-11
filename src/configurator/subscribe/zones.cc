@@ -19,7 +19,9 @@
 #include "../util.hh"
 #include "api/ZonesApi.h"
 #include "api/ServersApi.h"
+#include "api/ZonemetadataApi.h"
 #include "model/Zone.h"
+#include "model/Metadata.h"
 
 namespace pdns_model = org::openapitools::client::model;
 
@@ -129,6 +131,16 @@ void ServerConfigCB::changeZoneModify(sysrepo::S_Session &session) {
         auto masters = static_pointer_cast<sr::Session>(session)->getZoneMasters(zoneName);
         z.setMasters(masters);
       }
+      if (leafName == "allow-axfr") {
+        spdlog::trace("allow-axfr changed");
+        auto m = zoneAxfrAclModified[zoneName];
+        m.setKind("ALLOW-AXFR-FROM");
+        auto addresses = getAclAddresses(leaf, session);
+        if (!addresses.empty()) {
+          m.setMetadata(addresses);
+        }
+        zoneAxfrAclModified[zoneName] = m;
+      }
     }
 
     zonesModified[zoneName] = z;
@@ -208,6 +220,36 @@ void ServerConfigCB::doneZoneModify() {
     }
   }
   zonesModified.clear();
+
+  pdns_api::ZonemetadataApi zoneMetadataApiClient(d_apiClient);
+  for (auto const zm : zoneAxfrAclModified) {
+    auto zoneName = zm.first;
+    auto metadata = zm.second;
+    string zoneId;
+
+    try {
+      zoneId = getZoneId(zoneName);
+    } catch (const runtime_error &e) {
+      errors.push_back(fmt::format("unable to modify zone {}: {}", zoneName, e.what()));
+      continue;
+    }
+
+    try {
+      if (metadata.getMetadata().empty()) {
+        spdlog::trace("Removing ALLOW-AXFR-FROM metadata from zone {}", zoneId);
+        zoneMetadataApiClient.deleteMetadata("localhost", zoneId, zm.second.getKind()).get();
+        continue;
+      }
+      spdlog::trace("Setting ALLOW-AXFR-FROM metadata for zone {}", zoneId);
+      auto zmp = make_shared<pdns_api_model::Metadata>(zm.second);
+      zoneMetadataApiClient.modifyMetadata("localhost", zoneId, zm.second.getKind(), zmp).get();
+    } catch (const pdns_api::ApiException &e) {
+      errors.push_back(fmt::format("Unable to set ALLOW-AXFR-FROM metadata for zone {}: {}", zoneId, e.what()));
+      spdlog::debug("API call to add ALLOW-AXFR-FROM metadata to zone {} returned: {}", zoneId, e.getContent()->get());
+      continue;
+    }
+  }
+  zoneAxfrAclModified.clear();
   if (!errors.empty()) {
     throw runtime_error(boost::algorithm::join(errors, ", "));
   }

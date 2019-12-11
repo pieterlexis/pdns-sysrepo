@@ -25,6 +25,7 @@
 
 #include "ApiClient.h"
 #include "model/Zone.h"
+#include "model/Metadata.h"
 
 using std::map;
 using std::shared_ptr;
@@ -173,6 +174,14 @@ protected:
    */
   void doneZoneAddAndDelete();
 
+  /**
+   * @brief 
+   * 
+   * @param node 
+   * @return std::vector<std::string> 
+   */
+  std::vector<std::string> getAclAddresses(const libyang::S_Data_Node& node, const sysrepo::S_Session& session);
+
   void changeZoneModify(sysrepo::S_Session &session);
   void doneZoneModify();
 
@@ -188,6 +197,7 @@ protected:
 
   vector<pdns_api_model::Zone> zonesCreated;
   map<string, pdns_api_model::Zone> zonesModified;
+  map<string, pdns_api_model::Metadata> zoneAxfrAclModified;
   vector<string> zonesRemoved;
   bool pdnsConfigChanged{false};
   bool apiConfigChanged{false};

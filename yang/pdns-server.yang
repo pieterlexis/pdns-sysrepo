@@ -41,6 +41,11 @@ module pdns-server {
     description
       "This module describes the PowerDNS Authoritative Server";
 
+    revision 2019-12-11 {
+        description
+          "Add allow-axfr ACL option to the zone configuration";
+    }
+
     revision 2019-12-10 {
         description
           "Add allow-axfr ACL option";
@@ -393,6 +398,11 @@ module pdns-server {
             }
         }
         key "name";
+
+        leaf-list allow-axfr {
+          description "ACL refs for the networks can AXFR this zone";
+          type acl-ref;
+        }
     }
 
     container zones-state {
@@ -411,6 +421,13 @@ module pdns-server {
                 description
                   "The SOA serial for this zone";
                 type uint32;
+            }
+
+            leaf-list allow-axfr {
+                description
+                  "The IP Prefixes allowed to AXFR this zone";
+
+                type inet:ip-prefix;
             }
         }
     }

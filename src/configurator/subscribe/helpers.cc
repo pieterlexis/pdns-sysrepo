@@ -15,6 +15,7 @@
  */
 #include "../subscribe.hh"
 #include "ZonesApi.h"
+#include "../util.hh"
 
 namespace pdns_conf
 {
@@ -49,5 +50,33 @@ void ServerConfigCB::configureApi(const libyang::S_Data_Node &node) {
   apiConfig->setUserAgent("pdns-sysrepo/" + string(VERSION));
   d_apiClient->setConfiguration(apiConfig);
   spdlog::trace("API Client reconfigured");
+}
+
+vector<string> ServerConfigCB::getAclAddresses(const libyang::S_Data_Node &node, const sysrepo::S_Session &session) {
+  spdlog::trace("");
+  if (node->schema()->nodetype() != LYS_LEAFLIST) {
+    throw std::runtime_error(fmt::format("Node is not a leaf-list but a {}", util::libyangNodeType2String(node->schema()->nodetype())));
+  }
+  if (session == nullptr) {
+    throw std::runtime_error("Session cannot be null");
+  }
+
+  vector<string> ret;
+
+  string nodeName(node->schema()->name());
+  auto child = node;
+  while (child && string(child->schema()->name()) == nodeName) {
+    auto leaf = make_shared<libyang::Data_Node_Leaf_List>(child);
+    auto aclNode = session->get_subtree(fmt::format("/pdns-server:axfr-access-control-list[name='{}']", leaf->value_str()).c_str());
+    if (aclNode) {
+      for (auto const networkNode : aclNode->find_path("/pdns-server:axfr-access-control-list/pdns-server:network/pdns-server:ip-prefix")->data()) {
+        auto networkLeaf = make_shared<libyang::Data_Node_Leaf_List>(networkNode);
+        // spdlog::trace("Have ACL leafref target path={} name={} type={} value={}", networkNode->path(), networkNode->schema()->name(), util::libyangNodeType2String(networkNode->schema()->nodetype()), networkLeaf->value_str());
+        ret.push_back(networkLeaf->value_str());
+      }
+    }
+    child = child->next();
+  }
+  return ret;
 }
 } // namespace pdns_conf
