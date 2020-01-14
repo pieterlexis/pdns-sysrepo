@@ -55,6 +55,7 @@ module pdns-server {
            Several new features:
            
             * Added also-notify global option and as per-zone setting
+            * Added allow-axfr as a per-zone setting";
     }
 
     revision 2019-12-13 {
@@ -284,6 +285,14 @@ module pdns-server {
           description
             "List of remote endpoints to send NOTIFY packets";
           type notify-ref;
+        }
+
+        leaf-list allow-axfr {
+          if-feature "rrset-management";
+          when "../zonetype = 'master' or ../zonetype = 'native'";
+          description
+            "Access Control Lists applied for this zone.";
+          type acl-ref;
         }
 
         list rrset {
