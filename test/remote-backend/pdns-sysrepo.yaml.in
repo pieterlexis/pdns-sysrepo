@@ -1,0 +1,2 @@
+pdns_service: ""
+pdns_conf: "./pdns.conf"
