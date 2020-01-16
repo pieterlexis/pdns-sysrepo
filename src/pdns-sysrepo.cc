@@ -118,19 +118,16 @@ int main(int argc, char* argv[]) {
       }
       spdlog::trace("rrset-management is {}abled", rrsetManagement ? "en" : "dis");
 
-      std::shared_ptr<pdns_api::ApiClient> apiClient;
-      if (!rrsetManagement) {
-        /* This is passed to both the ServerConfigCB and the ZoneCB.
+      /* This is passed to both the ServerConfigCB and the ZoneCB.
          As the have the same reference, the ServerConfigCB can update the pdns_api::ApiClient with the
          correct config, allowing both the ZoneCB and the ServerConfigCB to work with the API
         */
-        apiClient = make_shared<pdns_api::ApiClient>();
-      }
+      auto apiClient = make_shared<pdns_api::ApiClient>();
 
       spdlog::debug("Registering config change callback");
       sysrepo::S_Session sSess(make_shared<sysrepo::Session>(sess));
       auto s = sysrepo::Subscribe(sSess);
-      auto cb = pdns_conf::getServerConfigCB(myConfig.getPdnsConfigFilename(), myConfig.getServiceName(), apiClient);
+      auto cb = pdns_conf::getServerConfigCB(myConfig.getPdnsConfigFilename(), myConfig.getServiceName(), apiClient, rrsetManagement);
       s.module_change_subscribe("pdns-server", cb, nullptr, nullptr, 0, SR_SUBSCR_ENABLED);
       spdlog::debug("Registered config change callback");
 

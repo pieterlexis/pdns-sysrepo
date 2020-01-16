@@ -70,6 +70,9 @@ void ServerConfigCB::changeZoneAddAndDelete(sysrepo::S_Session& session) {
         }
         child = child->next();
       }
+      if (d_rrsetManagementBackendOnly && z.getKind() != "slave") {
+        continue;
+      }
       zonesCreated.push_back(z);
     }
 
@@ -129,6 +132,12 @@ void ServerConfigCB::changeZoneModify(sysrepo::S_Session &session) {
         auto masters = static_pointer_cast<sr::Session>(session)->getZoneMasters(zoneName);
         z.setMasters(masters);
       }
+    }
+
+    if (d_rrsetManagementBackendOnly && z.getKind() != "slave") {
+      // The zone was made a non-slave, we need to remove it from the slave backend
+      zonesRemoved.push_back(z.getName());
+      continue;
     }
 
     zonesModified[zoneName] = z;

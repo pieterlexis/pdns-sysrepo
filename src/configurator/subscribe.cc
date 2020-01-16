@@ -26,11 +26,12 @@ namespace fs = boost::filesystem;
 
 namespace pdns_conf
 {
-std::shared_ptr<ServerConfigCB> getServerConfigCB(const string& fpath, const string &serviceName, shared_ptr<pdns_api::ApiClient> &apiClient) {
+std::shared_ptr<ServerConfigCB> getServerConfigCB(const string& fpath, const string &serviceName, shared_ptr<pdns_api::ApiClient> &apiClient, const bool rrsetManagementBackendOnly) {
   auto cb = make_shared<ServerConfigCB>(ServerConfigCB(
     {{"fpath", fpath},
       {"service", serviceName}},
-    apiClient));
+    apiClient,
+    rrsetManagementBackendOnly));
   return cb;
 }
 
@@ -68,22 +69,20 @@ int ServerConfigCB::module_change(sysrepo::S_Session session, const char* module
       return SR_ERR_OPERATION_FAILED;
     }
 
-    if (d_apiClient != nullptr) {
-      try {
-        changeZoneAddAndDelete(session);
-      }
-      catch (const exception& e) {
-        spdlog::warn("Zone changes not possible: {}", e.what());
-        return SR_ERR_OPERATION_FAILED;
-      }
+    try {
+      changeZoneAddAndDelete(session);
+    }
+    catch (const exception& e) {
+      spdlog::warn("Zone changes not possible: {}", e.what());
+      return SR_ERR_OPERATION_FAILED;
+    }
 
-      try {
-        changeZoneModify(session);
-      }
-      catch (const exception& e) {
-        spdlog::warn("Zone modifications not possible: {}", e.what());
-        return SR_ERR_OPERATION_FAILED;
-      }
+    try {
+      changeZoneModify(session);
+    }
+    catch (const exception& e) {
+      spdlog::warn("Zone modifications not possible: {}", e.what());
+      return SR_ERR_OPERATION_FAILED;
     }
   }
 
@@ -114,18 +113,16 @@ int ServerConfigCB::module_change(sysrepo::S_Session session, const char* module
         restartService(privData["service"]);
       }
 
-      if (d_apiClient != nullptr) {
-        if (apiConfigChanged) {
-          try {
-            auto sess = static_pointer_cast<sr::Session>(session);
-            configureApi(sess->getConfigTree());
-            apiConfigChanged = false;
-          }
-          catch (const std::exception& e) {
-            spdlog::warn("Could not initiate API Client: {}", e.what());
-            apiConfigChanged = false;
-            return SR_ERR_OPERATION_FAILED;
-          }
+      if (apiConfigChanged) {
+        try {
+          auto sess = static_pointer_cast<sr::Session>(session);
+          configureApi(sess->getConfigTree());
+          apiConfigChanged = false;
+        }
+        catch (const std::exception& e) {
+          spdlog::warn("Could not initiate API Client: {}", e.what());
+          apiConfigChanged = false;
+          return SR_ERR_OPERATION_FAILED;
         }
       }
 

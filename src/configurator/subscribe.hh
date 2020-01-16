@@ -82,10 +82,11 @@ public:
  * @param apiClient  apiClient for the PowerDNS API. Set this to a nullptr to indicate
  *                   that PowerDNS will connect to pdns-sysrepo's remote backend.
  */
-  ServerConfigCB(const map<string, string>& privData, shared_ptr<pdns_api::ApiClient> &apiClient) :
+  ServerConfigCB(const map<string, string>& privData, shared_ptr<pdns_api::ApiClient> &apiClient, const bool rrsetManagementBackendOnly) :
     sysrepo::Callback(),
     d_apiClient(apiClient),
-    privData(privData)
+    privData(privData),
+    d_rrsetManagementBackendOnly(rrsetManagementBackendOnly)
     {};
   ~ServerConfigCB(){};
 
@@ -146,6 +147,14 @@ protected:
   map<string, string> privData;
 
   /**
+   * @brief When set, only configure static backends
+   * 
+   * When rrset management is enabled, the YANG model disallows backend config
+   * 
+   */
+  bool d_rrsetManagementBackendOnly;
+
+  /**
    * @brief Checks if pdns.conf requires updating
    * 
    * If pdns.conf requires updating, it will create the temporary config file and
@@ -203,7 +212,7 @@ protected:
  * @param serviceName           Name of the PowerDNS service
  * @return std::shared_ptr<ServerConfigCB> 
  */
-std::shared_ptr<ServerConfigCB> getServerConfigCB(const string& fpath, const string& serviceName, shared_ptr<pdns_api::ApiClient> &apiClient);
+std::shared_ptr<ServerConfigCB> getServerConfigCB(const string& fpath, const string& serviceName, shared_ptr<pdns_api::ApiClient> &apiClient, const bool rrsetManagementBackendOnly = false);
 
 /**
  * @brief Get a new ZoneCB object wrapped in a shared_ptr
