@@ -28,6 +28,7 @@ string RemoteBackend::findBestZone(const string& qname) {
   boost::split(labels, qname, boost::is_any_of("."));
   string ret = qname;
   auto session = getSession();
+  session->session_switch_ds(SR_DS_OPERATIONAL);
 
   while (!labels.empty()) {
     try {
