@@ -15,6 +15,8 @@
  */
 
 #include "remote-backend.hh"
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/classification.hpp>
 
 namespace pdns_sysrepo::remote_backend {
   nlohmann::json::array_t RemoteBackend::getRecordsFromRRSetNode(const libyang::S_Data_Node &node, const string &rrsetLocation) {
@@ -23,28 +25,29 @@ namespace pdns_sysrepo::remote_backend {
     if (nodeSchemaPath != fmt::format("/pdns-server:zones/pdns-server:zones/pdns-server:{}", rrsetLocation)) {
         throw std::range_error(fmt::format("Node {} is not /pdns-server:zones/pdns-server:zones/pdns-server:{}", nodeSchemaPath, rrsetLocation));
     }
-    // childNode is rrset[owner][type]/owner
+
+    // childNode is rrset[owner][type]/any_of(owner,rdata,ttl,....)
     auto childNode = node->child();
 
-    auto record = nlohmann::json();
-    /* Iterate over childNode and its siblings (owner, ttl, type, rdata).
-     * As rdata is the last node, we can rely on record being filled properly when handling
-     * the rdata.
-     */
+    string qname, qtype;
+    uint32_t ttl;
+    nlohmann::json record;
     for (auto const &rrsetNode : childNode->tree_for()) {
       if ((rrsetNode->schema()->nodetype() & LYS_CONTAINER) && string(rrsetNode->schema()->name()) == "rdata") {
         // rdataNode is rrset[owner][type]/rdata/<type container>
         auto rdataNode = rrsetNode->child();
-        if (record["qtype"] == "SOA") {
-          // rdataNode is now the 'rrset/rdata/SOA/mname' node
+        std::vector<string> parts;
+        boost::split(parts, rdataNode->path(), boost::is_any_of("/"));
+        if (parts.back() == "SOA") {
+          // rdataNode is now the 'rrset/rdata/SOA/mname' node or one of its siblings
           rdataNode = rdataNode->child();
-          string content;
+          std::map<string, string> soaElements;
           for (auto const& soaNode : rdataNode->tree_for()) {
             auto soaLeaf = std::make_shared<libyang::Data_Node_Leaf_List>(soaNode);
-            content += " ";
-            content += soaLeaf->value_str();
+            string leafName = soaLeaf->schema()->name();
+            soaElements[leafName] = soaLeaf->value_str();
           }
-          record["content"] = content.substr(1);
+          record["content"] = fmt::format("{} {} {} {} {} {} {}", soaElements["mname"], soaElements["rname"], soaElements["serial"], soaElements["refresh"], soaElements["retry"], soaElements["expire"], soaElements["minimum"]);
           ret.push_back(record);
         } else {
           // rdataNode is now the 'rrset/rdata/<rrset type>/<whatever the node is called>' node
@@ -61,7 +64,6 @@ namespace pdns_sysrepo::remote_backend {
             }
           }
         }
-        continue;
       }
 
       if (!(rrsetNode->schema()->nodetype() & (LYS_LEAFLIST | LYS_LEAF))) {
@@ -71,13 +73,22 @@ namespace pdns_sysrepo::remote_backend {
       string leafName(rrsetNode->schema()->name());
       if (leafName == "owner") {
         record["qname"] = leaf->value_str();
+        qname = leaf->value_str();
       }
       if (leafName  == "type") {
         record["qtype"] = leaf->value_str();
+        qtype = leaf->value_str();
       }
       if (leafName  == "ttl") {
         record["ttl"] = leaf->value()->uintu32();
+        ttl = leaf->value()->uintu32();
       }
+    }
+    // Set the qname, qtype and TTL explicitly in case the nodes were not in the YANG order
+    for (auto &r: ret) {
+      r["qname"] = qname;
+      r["qtype"] = qtype;
+      r["ttl"] = ttl;
     }
     return ret;
   }
