@@ -107,6 +107,8 @@ pdns_sysrepo_bin = executable('pdns-sysrepo', 'src/pdns-sysrepo.cc',
   include_directories: [pdns_api_cpp_incdir, include_directories('src'), pistache_include],
   install: true)
 
+executable('sysrepo-issue', 'src/sr_apply_changes_bug.cc', dependencies: [sysrepo_cpp_dep, libyang_cpp_dep])
+
 # Generate a systemd unit file
 systemd_dep = dependency('systemd')
 configure_file(input : 'pdns-sysrepo.service.in',
