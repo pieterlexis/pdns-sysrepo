@@ -80,8 +80,8 @@ namespace pdns_sysrepo::remote_backend {
         qtype = leaf->value_str();
       }
       if (leafName  == "ttl") {
-        record["ttl"] = leaf->value()->uintu32();
-        ttl = leaf->value()->uintu32();
+        record["ttl"] = leaf->value()->uint32();
+        ttl = leaf->value()->uint32();
       }
     }
     // Set the qname, qtype and TTL explicitly in case the nodes were not in the YANG order
