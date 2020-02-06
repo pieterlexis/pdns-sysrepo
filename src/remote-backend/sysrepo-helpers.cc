@@ -37,7 +37,8 @@ namespace pdns_sysrepo::remote_backend {
         // rdataNode is rrset[owner][type]/rdata/<type container>
         auto rdataNode = rrsetNode->child();
         std::vector<string> parts;
-        boost::split(parts, rdataNode->path(), boost::is_any_of("/"));
+        std::string path(rdataNode->path());
+        boost::split(parts, path, boost::is_any_of("/"));
         if (parts.back() == "SOA") {
           // rdataNode is now the 'rrset/rdata/SOA/mname' node or one of its siblings
           rdataNode = rdataNode->child();
