@@ -1,0 +1,51 @@
+module sr-apply-changes {
+    yang-version 1.1;
+    namespace urn:ietf:params:xml:ns:yang:sr-apply-changes;
+    prefix sr-apply-changes;
+
+    organization
+      "PowerDNS.COM BV";
+    contact
+      "Pieter Lexis <mailto:pieter.lexis@powerdns.com>";
+
+    description
+      "This module describes the PowerDNS Authoritative Server";
+
+    revision 2020-02-06 {
+      description "Issue 1802";
+    }
+
+    revision 2020-02-05 {
+      description "initial";
+    }
+
+    container foo {
+        list rrset-state {
+            config false;
+            key "owner type";
+            leaf owner {
+                type string;
+                mandatory true;
+            }
+
+            leaf ttl {
+                type uint32;
+                mandatory "true";
+            }
+
+            leaf type {
+                type string;
+                mandatory "true";
+            }
+
+            container rdata {
+                container NS {
+                    leaf-list nsdname {
+                        type string;
+                        min-elements 1;
+                    }
+                }
+            }
+        }
+    }
+}
