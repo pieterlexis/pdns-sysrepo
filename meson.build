@@ -122,6 +122,11 @@ pdns_sysrepo_bin = executable('pdns-sysrepo',
   include_directories: [pdns_api_cpp_incdir, include_directories('src'), pistache_include],
   install: true)
 
+load_data_in_operational_bin = executable('load-data-in-operational',
+  'src/load-data-in-operational.cc',
+  dependencies: [sysrepo_cpp_dep]
+)
+
 # Generate a systemd unit file
 systemd_dep = dependency('systemd')
 configure_file(input : 'pdns-sysrepo.service.in',
