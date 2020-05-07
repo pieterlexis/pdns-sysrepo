@@ -122,6 +122,7 @@ module dns-server-common {
           default '::/0';
       }
       leaf-list tsig-key {
+          if-feature tsig;
           type key-ref;
       }
     }
@@ -129,6 +130,7 @@ module dns-server-common {
     grouping address-key {
         uses dnsc:dns-endpoint;
         leaf tsig-key {
+            if-feature tsig;
             type key-ref;
         }
     }
