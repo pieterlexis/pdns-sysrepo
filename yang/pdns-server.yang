@@ -33,6 +33,10 @@ module pdns-server {
         prefix dnsct;
     }
 
+    import dns-common {
+      prefix dnsc;
+    }
+
     import dns-zone-common {
         prefix dnszc;
     }
@@ -196,34 +200,6 @@ module pdns-server {
         path "/pdns-server:notify-endpoint/pdns-server:name";
       }
       description "This type is used to reference configured notify endpoints";
-    }
-
-    typedef owner-name {
-        // TODO support IDN (xn--XX-XXXX)
-        // TODO support symbols other than - and _
-        description
-          "The owner name must be a valid dns name for the owner of a resource record.
-           It can start with a '*' to denote a wildcard and must end with a '.'";
-
-        type string {
-            length "1..255";
-            pattern '(\*\.)?([a-z0-9_][-a-z0-9_]{0,61}[a-z0-9]\.)+|\.';
-            pattern ".*--.*" {
-              modifier invert-match;
-            }
-        }
-    }
-
-    typedef zone-name {
-      type owner-name {
-        pattern '([a-z0-9_][-a-z0-9_]{0,63}\.)+|\.';
-      }
-    }
-
-    typedef host-name {
-      type zone-name {
-        pattern '([a-z0-9]([-a-z0-9_]{0,61}[a-z0-9])\.){2,}';
-      }
     }
 
     typedef master-ref {
@@ -501,7 +477,7 @@ module pdns-server {
               description "The port on this target host of this service";
             }
             leaf target {
-              type host-name;
+              type dnsc:host-name;
               description "The domain name of the target host.";
             }
           }
@@ -553,7 +529,7 @@ module pdns-server {
         leaf name {
             description
               "Name of the zone, MUST be suffixed with a dot";
-            type zone-name;
+            type dnsc:zone-name;
             mandatory true;
         }
 

@@ -19,7 +19,7 @@
 #include <libyang/Libyang.hpp>
 #include <libyang/Tree_Data.hpp>
 
-#define MODULE_NAME "pdns-server-typedef-test"
+#define MODULE_NAME "dns-common-typedef-test"
 
 using std::cerr;
 using std::endl;
@@ -32,7 +32,7 @@ TEST(yang_typedef_test, valid_hostname) {
   libyang::S_Context ctx = make_shared<libyang::Context>(libyang::Context(yangDir.c_str()));
   auto mod = ctx->load_module(MODULE_NAME);
 
-  libyang::S_Data_Node node = make_shared<libyang::Data_Node>(libyang::Data_Node(ctx, "/pdns-server-typedef-test:hostnames", nullptr, LYD_ANYDATA_CONSTSTRING, 0));
+  libyang::S_Data_Node node = make_shared<libyang::Data_Node>(libyang::Data_Node(ctx, "/dns-common-typedef-test:hostnames", nullptr, LYD_ANYDATA_CONSTSTRING, 0));
   ASSERT_NO_THROW(libyang::S_Data_Node valid(new libyang::Data_Node(node, mod, "hostname", "my.hostname.example.")));
   ASSERT_NO_THROW(libyang::S_Data_Node valid(new libyang::Data_Node(node, mod, "hostname", "another-bla.hostname.example.")));
   ASSERT_NO_THROW(libyang::S_Data_Node valid(new libyang::Data_Node(node, mod, "hostname", "valid.example.")));
@@ -42,7 +42,7 @@ TEST(yang_typedef_test, invalid_hostname) {
   libyang::S_Context ctx = make_shared<libyang::Context>(libyang::Context(yangDir.c_str()));
   auto mod = ctx->load_module(MODULE_NAME);
 
-  libyang::S_Data_Node node = make_shared<libyang::Data_Node>(libyang::Data_Node(ctx, "/pdns-server-typedef-test:hostnames", nullptr, LYD_ANYDATA_CONSTSTRING, 0));
+  libyang::S_Data_Node node = make_shared<libyang::Data_Node>(libyang::Data_Node(ctx, "/dns-common-typedef-test:hostnames", nullptr, LYD_ANYDATA_CONSTSTRING, 0));
   ASSERT_THROW(libyang::S_Data_Node invalid(new libyang::Data_Node(node, mod, "hostname", "_invalid.hostname.example.")), std::runtime_error);
   ASSERT_THROW(libyang::S_Data_Node invalid(new libyang::Data_Node(node, mod, "hostname", "invalid-.hostname.example.")), std::runtime_error);
   ASSERT_THROW(libyang::S_Data_Node invalid(new libyang::Data_Node(node, mod, "hostname", "invalid.")), std::runtime_error);
@@ -52,7 +52,7 @@ TEST(yang_typedef_test, owner_name) {
   libyang::S_Context ctx = make_shared<libyang::Context>(libyang::Context(yangDir.c_str()));
   auto mod = ctx->load_module(MODULE_NAME);
 
-  libyang::S_Data_Node node = make_shared<libyang::Data_Node>(libyang::Data_Node(ctx, "/pdns-server-typedef-test:ownernames", nullptr, LYD_ANYDATA_CONSTSTRING, 0));
+  libyang::S_Data_Node node = make_shared<libyang::Data_Node>(libyang::Data_Node(ctx, "/dns-common-typedef-test:ownernames", nullptr, LYD_ANYDATA_CONSTSTRING, 0));
   ASSERT_NO_THROW(libyang::S_Data_Node n(new libyang::Data_Node(node, mod, "owner-name", ".")));
 
   ASSERT_NO_THROW(libyang::S_Data_Node n(new libyang::Data_Node(node, mod, "owner-name", "example.")));
@@ -89,7 +89,7 @@ TEST(yang_typedef_test, length) {
   libyang::S_Context ctx = make_shared<libyang::Context>(libyang::Context(yangDir.c_str()));
   auto mod = ctx->load_module(MODULE_NAME);
 
-  libyang::S_Data_Node node = make_shared<libyang::Data_Node>(libyang::Data_Node(ctx, "/pdns-server-typedef-test:ownernames", nullptr, LYD_ANYDATA_CONSTSTRING, 0));
+  libyang::S_Data_Node node = make_shared<libyang::Data_Node>(libyang::Data_Node(ctx, "/dns-common-typedef-test:ownernames", nullptr, LYD_ANYDATA_CONSTSTRING, 0));
   string too_long_label(64, 'a');
   string label_max_size(63, 'a');
 
@@ -127,7 +127,7 @@ TEST(yang_typedef_test, zone_name) {
   libyang::S_Context ctx = make_shared<libyang::Context>(libyang::Context(yangDir.c_str()));
   auto mod = ctx->load_module(MODULE_NAME);
 
-  libyang::S_Data_Node node = make_shared<libyang::Data_Node>(libyang::Data_Node(ctx, "/pdns-server-typedef-test:zonenames", nullptr, LYD_ANYDATA_CONSTSTRING, 0));
+  libyang::S_Data_Node node = make_shared<libyang::Data_Node>(libyang::Data_Node(ctx, "/dns-common-typedef-test:zonenames", nullptr, LYD_ANYDATA_CONSTSTRING, 0));
   ASSERT_NO_THROW(libyang::S_Data_Node n(new libyang::Data_Node(node, mod, "zonename", ".")));
   ASSERT_NO_THROW(libyang::S_Data_Node n(new libyang::Data_Node(node, mod, "zonename", "example.")));
 }

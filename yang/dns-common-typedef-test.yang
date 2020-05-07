@@ -14,13 +14,13 @@
  * limitations under the License.";
  */
 
-module pdns-server-typedef-test {
+module dns-common-typedef-test {
     yang-version 1.1;
-    namespace "http://powerdns.com/yang/pdns-server-test";
-    prefix pdns-server-typedef-test;
+    namespace "http://powerdns.com/yang/dns-common-typedef-test";
+    prefix dns-common-typedef-test;
 
-    import pdns-server {
-        prefix "pdns-server";
+    import dns-common {
+        prefix dnsc;
     }
 
 
@@ -30,7 +30,7 @@ module pdns-server-typedef-test {
       "Pieter Lexis <mailto:pieter.lexis@powerdns.com>";
 
     description
-      "This module is only used for testing the typedefs in pdns-server";
+      "This module is only used for testing the typedefs in dns-common";
 
     revision 2020-01-23 {
       description "initial";
@@ -38,19 +38,19 @@ module pdns-server-typedef-test {
 
     container hostnames {
         leaf-list hostname {
-            type pdns-server:host-name;
+            type dnsc:host-name;
         }
     }
 
     container zonenames {
         leaf-list zonename {
-            type pdns-server:zone-name;
+            type dnsc:zone-name;
         }
     }
 
     container ownernames {
         leaf-list owner-name {
-            type pdns-server:owner-name;
+            type dnsc:owner-name;
         }
     }
 }
