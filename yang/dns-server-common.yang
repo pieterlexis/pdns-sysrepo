@@ -26,6 +26,10 @@ module dns-server-common {
         prefix dnsc;
     }
 
+    import ietf-inet-types {
+        prefix inet;
+    }
+
     organization
       "PowerDNS.COM BV";
     contact
@@ -109,5 +113,34 @@ module dns-server-common {
             if-feature tsig-algo-sha512;
         }
     // TODO GSS TSIG config
+    }
+
+    grouping network-key {
+      leaf-list network {
+          type inet:ip-prefix;
+          default '0.0.0.0/0';
+          default '::/0';
+      }
+      leaf-list tsig-key {
+          type key-ref;
+      }
+    }
+
+    list allow-transfer {
+        description "Global AXFR ACL, both the network and key must match";
+        key name;
+        leaf name {
+            type string;
+        }
+        uses dns-server-common:network-key;
+    }
+
+    list allow-notify {
+        description "Global Notify ACL, both the network and key must match";
+        key name;
+        leaf name {
+            type string;
+        }
+        uses dns-server-common:network-key;
     }
 }
