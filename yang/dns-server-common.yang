@@ -1,0 +1,113 @@
+/*
+ * Copyright 2019-2020 Pieter Lexis <pieter.lexis@powerdns.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.";
+ */
+module dns-server-common {
+    yang-version "1.1";
+    namespace "http://powerdns.com/yang/dns-server-common";
+    prefix dns-server-common;
+
+    import tsig-algorithms {
+        prefix tsig-alg;
+    }
+
+    import dns-common {
+        prefix dnsc;
+    }
+
+    organization
+      "PowerDNS.COM BV";
+    contact
+      "Pieter Lexis <mailto:pieter.lexis@powerdns.com>";
+
+    feature tsig;
+    feature tsig-algo-sha224;
+    feature tsig-algo-sha256;
+    feature tsig-algo-sha384;
+    feature tsig-algo-sha512;
+
+    typedef key-ref {
+        type leafref {
+            path "/dns-server-common:dns-server/dns-server-common:key/dns-server-common:name";
+        }
+        description
+          "This type is used for referring to a configured TSIG key.";
+    }
+
+    list key {
+        if-feature tsig;
+
+        key "name";
+        description
+          "Definitions of TSIG keys.";
+        leaf name {
+            type dnsc:owner-name;
+            mandatory true;
+        }
+
+        leaf algorithm {
+            type identityref {
+                base tsig-alg:tsig-algorithm;
+            }
+            mandatory true;
+        }
+        leaf secret-md5 {
+            type binary {
+                length 16;
+            }
+            mandatory true;
+            when "../algorithm = 'HMAC-MD5.SIG-ALG.REG.INT'";
+        }
+        leaf secret-sha1 {
+            type binary {
+                length 20;
+            }
+            mandatory true;
+            when "../algorithm = 'hmac-sha1'";
+        }
+        leaf secret-sha224 {
+            type binary {
+                length 28;
+            }
+            mandatory true;
+            when "../algorithm = 'hmac-sha224'";
+            if-feature tsig-algo-sha224;
+        }
+        leaf secret-sha256 {
+            type binary {
+                length 32;
+            }
+            mandatory true;
+            when "../algorithm = 'hmac-sha256'";
+            if-feature tsig-algo-sha256;
+        }
+        leaf secret-sha384 {
+            type binary {
+                length 48;
+            }
+            mandatory true;
+            when "../algorithm = 'hmac-sha384'";
+            if-feature tsig-algo-sha384;
+        }
+        leaf secret-sha512 {
+            type binary {
+                length 64;
+            }
+            mandatory true;
+            when "../algorithm = 'hmac-sha512'";
+            if-feature tsig-algo-sha512;
+        }
+    // TODO GSS TSIG config
+    }
+}
