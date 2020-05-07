@@ -18,6 +18,10 @@ module dns-common {
     namespace "http://powerdns.com/yang/dns-common";
     prefix dnsc;
 
+    import ietf-inet-types {
+      prefix inet;
+    }
+
     organization
       "PowerDNS.COM BV";
     contact
@@ -54,4 +58,16 @@ module dns-common {
               '([a-z0-9]([-a-z0-9_]{0,61}[a-z0-9])\.){2,}';
         }
     }
+
+    grouping dns-endpoint {
+        leaf address {
+            type inet:ip-address-no-zone;
+            mandatory true;
+        }
+        leaf port {
+            type inet:port-number;
+            default 53;
+        }
+    }
+
 }

@@ -126,19 +126,8 @@ module dns-server-common {
       }
     }
 
-    grouping dns-endpoint {
-        leaf address {
-            type inet:ip-address-no-zone;
-            mandatory true;
-        }
-        leaf port {
-            type inet:port-number;
-            default 53;
-        }
-    }
-
     grouping address-key {
-        uses dns-endpoint;
+        uses dnsc:dns-endpoint;
         leaf tsig-key {
             type key-ref;
         }
