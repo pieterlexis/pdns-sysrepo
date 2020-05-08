@@ -69,75 +69,80 @@ module dns-server-common {
         }
     }
 
-    container dns-server {
+    grouping tsig-key-list-entry {
+        leaf name {
+            type dnsc:owner-name;
+            mandatory true;
+        }
+
+        leaf algorithm {
+            type identityref {
+                base tsig-alg:tsig-algorithm;
+            }
+            mandatory true;
+        }
+        leaf secret-md5 {
+            type binary {
+                length 16;
+            }
+            mandatory true;
+            when "../algorithm = 'HMAC-MD5.SIG-ALG.REG.INT'";
+        }
+        leaf secret-sha1 {
+            type binary {
+                length 20;
+            }
+            mandatory true;
+            when "../algorithm = 'hmac-sha1'";
+        }
+        leaf secret-sha224 {
+            type binary {
+                length 28;
+            }
+            mandatory true;
+            when "../algorithm = 'hmac-sha224'";
+            if-feature tsig-algo-sha224;
+        }
+        leaf secret-sha256 {
+            type binary {
+                length 32;
+            }
+            mandatory true;
+            when "../algorithm = 'hmac-sha256'";
+            if-feature tsig-algo-sha256;
+        }
+        leaf secret-sha384 {
+            type binary {
+                length 48;
+            }
+            mandatory true;
+            when "../algorithm = 'hmac-sha384'";
+            if-feature tsig-algo-sha384;
+        }
+        leaf secret-sha512 {
+            type binary {
+                length 64;
+            }
+            mandatory true;
+            when "../algorithm = 'hmac-sha512'";
+            if-feature tsig-algo-sha512;
+        }
+        // TODO GSS TSIG config
+    }
+
+    grouping dns-server {
         list key {
             if-feature tsig;
 
             key "name";
             description
-            "Definitions of TSIG keys.";
-            leaf name {
-                type dnsc:owner-name;
-                mandatory true;
-            }
-
-            leaf algorithm {
-                type identityref {
-                    base tsig-alg:tsig-algorithm;
-                }
-                mandatory true;
-            }
-            leaf secret-md5 {
-                type binary {
-                    length 16;
-                }
-                mandatory true;
-                when "../algorithm = 'HMAC-MD5.SIG-ALG.REG.INT'";
-            }
-            leaf secret-sha1 {
-                type binary {
-                    length 20;
-                }
-                mandatory true;
-                when "../algorithm = 'hmac-sha1'";
-            }
-            leaf secret-sha224 {
-                type binary {
-                    length 28;
-                }
-                mandatory true;
-                when "../algorithm = 'hmac-sha224'";
-                if-feature tsig-algo-sha224;
-            }
-            leaf secret-sha256 {
-                type binary {
-                    length 32;
-                }
-                mandatory true;
-                when "../algorithm = 'hmac-sha256'";
-                if-feature tsig-algo-sha256;
-            }
-            leaf secret-sha384 {
-                type binary {
-                    length 48;
-                }
-                mandatory true;
-                when "../algorithm = 'hmac-sha384'";
-                if-feature tsig-algo-sha384;
-            }
-            leaf secret-sha512 {
-                type binary {
-                    length 64;
-                }
-                mandatory true;
-                when "../algorithm = 'hmac-sha512'";
-                if-feature tsig-algo-sha512;
-            }
-        // TODO GSS TSIG config
+              "Definitions of TSIG keys.";
+            uses dns-server-common:tsig-key-list-entry;
         }
 
         list allow-transfer {
-            description "Global AXFR ACL, both the network and key must match";
+            description
+              "Global AXFR ACL, both the network and key must match";
             key name;
             leaf name {
                 type string;
@@ -146,12 +151,17 @@ module dns-server-common {
         }
 
         list allow-notify {
-            description "Global Notify ACL, both the network and key must match";
+            description
+              "Global Notify ACL, both the network and key must match";
             key name;
             leaf name {
                 type string;
             }
             uses dns-server-common:network-key;
         }
+    }
+
+    container dns-server {
+        uses dns-server;
     }
 }
