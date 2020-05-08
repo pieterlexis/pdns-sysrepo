@@ -149,6 +149,15 @@ jobs:
           command: sysrepoctl -i yang/dns-zone-common@2017-01-12.yang
           workdir: ~/project
       - run:
+          command: sysrepoctl -i yang/tsig-algorithms@2016-01-13.yang
+          workdir: ~/project
+      - run:
+          command: sysrepoctl -i yang/dns-common.yang
+          workdir: ~/project
+      - run:
+          command: sysrepoctl -i yang/dns-server-common.yang
+          workdir: ~/project
+      - run:
           command: sysrepoctl -i yang/pdns-server.yang
           workdir: ~/project
       - run:
