@@ -84,7 +84,7 @@ PdnsServerConfig::PdnsServerConfig(const libyang::S_Data_Node &node, const sysre
      *               /     |                         \
      *            master  listen-address[name=foo]    listen-address[name=bar]
      *                       /          |      \         |       |           \
-     *                     name  ip-address    port     name    ip-address   port
+     *                     name     address    port     name    address     port
      * 
      * We walk through the tree horizontally, skipping the root. Each child need its own
      * parsing code for its own data, as the it can be a leaf-list, but the top-level loop
@@ -118,7 +118,7 @@ PdnsServerConfig::PdnsServerConfig(const libyang::S_Data_Node &node, const sysre
             if(leafName == "name") {
               la.name = leaf->value()->string();
             }
-            if(leafName == "ip-address") {
+            if(leafName == "address") {
               la.address = iputils::ComboAddress(leaf->value()->string(), la.address.getPort());
             }
             if(leafName == "port") {
@@ -216,7 +216,7 @@ PdnsServerConfig::PdnsServerConfig(const libyang::S_Data_Node &node, const sysre
             uint16_t port = 53;
             for (auto const &node : addressNode->tree_dfs()) {
               std::string nodeName(node->schema()->name());
-              if (nodeName == "ip-address") {
+              if (nodeName == "address") {
                 auto leaf = std::make_shared<libyang::Data_Node_Leaf_List>(node);
                 ip_address = leaf->value_str();
               }

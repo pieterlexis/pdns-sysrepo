@@ -5,11 +5,11 @@
       "address": [
         {
           "name": "host 200",
-          "ip-address": "192.0.2.200"
+          "address": "192.0.2.200"
         },
         {
           "name": "host 200 on v6",
-          "ip-address": "2001:db8::53:1"
+          "address": "2001:db8::53:1"
         }
       ]
     },
@@ -18,7 +18,7 @@
       "address": [
         {
           "name": "host 3",
-          "ip-address": "192.0.2.3",
+          "address": "192.0.2.3",
           "port": 1500
         }
       ]
@@ -28,7 +28,7 @@
       "address": [
         {
           "name": "very cool",
-          "ip-address": "192.0.2.222"
+          "address": "192.0.2.222"
         }
       ]
     }
@@ -67,7 +67,7 @@
       "address": [
         {
           "name": "v4",
-          "ip-address": "127.0.0.1"
+          "address": "127.0.0.1"
         }
       ]
     }
@@ -86,7 +86,7 @@
     "listen-addresses": [
       {
         "name": "main",
-        "ip-address": "127.0.0.1",
+        "address": "127.0.0.1",
         "port": 5300
       }
     ],

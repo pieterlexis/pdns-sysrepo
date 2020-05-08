@@ -50,12 +50,20 @@ RemoteBackend::getListofIPs(const sysrepo::S_Session& session, const libyang::S_
     auto nameLeaf = std::make_shared<libyang::Data_Node_Leaf_List>(itNode);
     auto leafRefXPath = fmt::format(leafRefXPathTemplate, nameLeaf->value_str());
     auto leafRefAddressNode = session->get_subtree(leafRefXPath.c_str());
-    for (auto const& addressNode : leafRefAddressNode->find_path(fmt::format("{}/{}", leafRefXPath, "/address").c_str())->data()) {
+    for (auto const& addressNode : leafRefAddressNode->find_path(fmt::format("{}/{}", leafRefXPath, "/pdns-server:address").c_str())->data()) {
+      if (addressNode->schema()->nodetype() != LYS_LIST) {
+        // This is the _inner_ 'address' node
+        continue;
+      }
       std::string ip_address;
       uint16_t port = 53;
       for (auto const& node : addressNode->tree_dfs()) {
+        if (node->schema()->nodetype() != LYS_LEAF) {
+          // Ignore the "address" list node
+          continue;
+        }
         std::string nodeName(node->schema()->name());
-        if (nodeName == "ip-address") {
+        if (nodeName == "address") {
           auto leaf = std::make_shared<libyang::Data_Node_Leaf_List>(node);
           ip_address = leaf->value_str();
         }

@@ -209,21 +209,6 @@ module pdns-server {
       description "This type is used to reference master servers";
     }
 
-    /*
-     * Groupings
-     */
-    grouping endpoint {
-        description
-          "An IP endpoint, including the port";
-        leaf ip-address {
-            type inet:ip-address;
-            mandatory true;
-        }
-        leaf port {
-            type inet:port-number;
-        }
-    }
-
     grouping backend {
         description
           "The configuration of a PowerDNS backend";
@@ -699,18 +684,14 @@ module pdns-server {
       }
       list address {
         key "name";
-        unique "ip-address port";
+        unique "address port";
 
         description "Address to notify";
         leaf name {
           type string;
         }        
 
-        uses endpoint {
-          refine port {
-            default 53;
-          }
-        }
+        uses dnsc:dns-endpoint;
       }
     }
 
@@ -723,18 +704,14 @@ module pdns-server {
       }
       list address {
         key "name";
-        unique "ip-address port";
+        unique "address port";
 
         description "Address that are a master";
         leaf name {
           type string;
         }        
 
-        uses endpoint {
-          refine port {
-            default 53;
-          }
-        }
+        uses dnsc:dns-endpoint;
       }
     }
 
@@ -745,15 +722,11 @@ module pdns-server {
             description
               "The addresses this server is listening on for queries";
             key "name";
-            unique "ip-address port";
+            unique "address port";
             leaf name {
                 type string;
             }
-            uses endpoint {
-                refine "port" {
-                    default 53;
-                }
-            }
+            uses dnsc:dns-endpoint;
         }
         leaf master {
             description
