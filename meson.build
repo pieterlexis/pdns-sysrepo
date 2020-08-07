@@ -59,6 +59,17 @@ pdns_sysrepo_zone_oper_callback = files(
 sysrepo_cpp_dep = dependency('sysrepo-cpp', version: '>=1.4.30')
 libyang_cpp_dep = dependency('libyang-cpp', version: '>=1.0.151')
 boost_deps = dependency('boost', modules : ['filesystem', 'program_options', 'system'])
+
+compiler = meson.get_compiler('cpp')
+compiler.check_header('boost/algorithm/string/classification.hpp')
+compiler.check_header('boost/algorithm/string/join.hpp')
+compiler.check_header('boost/algorithm/string/split.hpp')
+compiler.check_header('boost/bimap.hpp')
+compiler.check_header('boost/filesystem.hpp')
+compiler.check_header('boost/lexical_cast.hpp')
+compiler.check_header('boost/optional.hpp')
+compiler.check_header('boost/program_options.hpp')
+
 libsystemd_dep = dependency('libsystemd')
 sdbusplus_dep = dependency('sdbusplus')
 

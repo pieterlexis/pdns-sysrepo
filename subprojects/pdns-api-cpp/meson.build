@@ -4,7 +4,13 @@ project('pdns-api-cpp', 'cpp',
   license: ['MIT', 'GLPv2']
   )
 
-boost_deps = dependency('boost', modules : ['algorithm', 'optional', 'uuid'])
+boost_deps = dependency('boost')
+
+compiler = meson.get_compiler('cpp')
+compiler.check_header('boost/algorithm/string/replace.hpp')
+compiler.check_header('boost/optional.hpp')
+compiler.check_header('boost/uuid/random_generator.hpp')
+compiler.check_header('boost/uuid/uuid_io.hpp')
 
 cpprest_dep = dependency('cpprestsdk', required: false)
 if not cpprest_dep.found()
